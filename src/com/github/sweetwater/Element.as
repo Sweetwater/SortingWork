@@ -1,4 +1,4 @@
-package {
+package com.github.sweetwater {
 import flash.display.Shape;
 import flash.text.TextFormatAlign;
 import flash.text.TextFormat;

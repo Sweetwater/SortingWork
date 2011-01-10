@@ -1,4 +1,4 @@
-package {
+package com.github.sweetwater {
 import flash.display.InteractiveObject;
 import flash.events.MouseEvent;
 import flash.utils.getTimer;

@@ -1,4 +1,4 @@
-package {
+package com.github.sweetwater {
 import flash.display.Graphics;
 import flash.display.Sprite;
 

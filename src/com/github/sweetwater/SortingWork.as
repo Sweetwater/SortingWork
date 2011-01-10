@@ -1,4 +1,4 @@
-package {
+package com.github.sweetwater {
 import flash.text.TextField;
 import flash.display.Sprite;
 

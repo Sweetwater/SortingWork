@@ -1,4 +1,4 @@
-package {
+package com.github.sweetwater {
 import flash.display.Stage;
 import flash.events.Event;
 import flash.events.EventDispatcher;
