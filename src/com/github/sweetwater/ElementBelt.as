@@ -1,4 +1,5 @@
 package com.github.sweetwater {
+import flash.display.Stage;
 import flash.events.Event;
 
 /**
@@ -6,8 +7,14 @@ import flash.events.Event;
  */
 public class ElementBelt {
   private var _elements:Array;
+  public function get elements():Array {
+    return _elements;
+  }
 
-  public function ElementBelt(game:Game) {
+  private var _stage:Stage;
+
+  public function ElementBelt(game:Game, stage:Stage) {
+    _stage = stage;
     game.addEventListener("updateFrame", function(event:Event):void {
       updateFrame();
     });
@@ -23,8 +30,16 @@ public class ElementBelt {
 
   public function initialize(elements:Array):void {
     _elements = elements.slice();
+    _elements.forEach(function(item:Element, index:int, array:Array):void {
+      Object(array);
+      int(index);
+      _stage.addChild(item);
+    });
+    fixPoision();
+  }
 
-    var startX:int = 60;
+  public function fixPoision():void {
+    var startX:int = 0;
     var offsetX:int = 60;
     var posY:int = 60;
     _elements.forEach(function(item:Element, index:int, array:Array):void {
@@ -36,10 +51,20 @@ public class ElementBelt {
 
   public function insert(index:int, element:Element):void {
     _elements.splice(index, 0, element);
+    _stage.addChildAt(element, 0);
+    fixPoision();
   }
 
   public function remove(index:int):Element {
-    return _elements.splice(index, 1)[0];
+    if (index < _elements.length) {
+      var element:Element = _elements.splice(index, 1)[0];
+      _stage.removeChild(element);
+      fixPoision();
+      return element;
+    }
+    else {
+      return null;
+    }
   }
 }
 }

@@ -59,13 +59,13 @@ public class MouseController {
     if (moveY < -_deltaY) {
       trace("up !!");
       SortingWork.outputText("up !!");
-      Game.instance.execute(new Command("pushRequest"));
+      Game.instance.execute(new Command("game_beltToBox"));
     }
     // 下向きにどらっぐされた
     if (moveY > _deltaY) {
       trace("down !!");
       SortingWork.outputText("down !!");
-      Game.instance.execute(new Command("popRequest"));
+      Game.instance.execute(new Command("game_boxToBelt"));
     }
     _isDown = false;
   }

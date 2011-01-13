@@ -1,13 +1,22 @@
 package com.github.sweetwater {
 import flash.display.Graphics;
 import flash.display.Sprite;
+import flash.text.engine.LigatureLevel;
 
 /**
  * @author sweetwater
  */
 public class TempBox extends Sprite {
 
-  private var _light:Light;
+  private var _light:Light = null;
+  public function get light():Light {
+    return _light;
+  }
+
+  private var _element:Element = null;
+  public function get element():Element {
+    return _element;
+  }
 
   public function TempBox() {
     var g:Graphics = this.graphics;
@@ -22,10 +31,26 @@ public class TempBox extends Sprite {
   }
 
   public function push(element:Element):void {
+    if (_element != null) return;
+
+    addChild(element);
+    element.x = 3;
+    element.y = 3;
+    _element = element;
   }
 
   public function pop():Element {
-    return null;
+    if (_element != null) {
+      removeChild(_element);
+      _element.x = this.x + 3;
+      _element.y = this.y + 3;
+      var returnElement:Element = _element;
+      _element = null;
+      return returnElement;
+    }
+    else {
+      return null;
+    }
   }
 }
 }

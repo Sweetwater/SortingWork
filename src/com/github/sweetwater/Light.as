@@ -13,7 +13,7 @@ public class Light extends Sprite {
     var color:uint = 0xFFFF80;
     g.clear();
     g.beginFill(color, 0.9);
-    g.lineStyle(3, color, 1.0, true);
+    g.lineStyle(0, color, 1.0, true);
     g.drawRect(0, 0, 46, 90);
     g.endFill();
 

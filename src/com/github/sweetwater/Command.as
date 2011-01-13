@@ -4,9 +4,9 @@ package com.github.sweetwater {
  */
 public class Command {
   private var _type:String;
-  private var _arg:String;
+  private var _arg:Object;
 
-  public function Command(type:String, arg:String = null) {
+  public function Command(type:String, arg:Object = null) {
     _type = type;
     _arg = arg;
   }
@@ -15,7 +15,7 @@ public class Command {
     return _type;
   }
 
-  public function get arg():String {
+  public function get arg():Object {
     return _arg;
   }
 }

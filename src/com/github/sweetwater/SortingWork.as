@@ -18,6 +18,7 @@ public class SortingWork extends Sprite {
 
     _text = new TextField();
     _text.text = "test";
+    _text.y = 160;
     addChild(_text);
 
     //
