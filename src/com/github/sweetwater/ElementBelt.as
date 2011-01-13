@@ -39,7 +39,7 @@ public class ElementBelt {
   }
 
   public function fixPoision():void {
-    var startX:int = 0;
+    var startX:int = 60;
     var offsetX:int = 60;
     var posY:int = 60;
     _elements.forEach(function(item:Element, index:int, array:Array):void {

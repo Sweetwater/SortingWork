@@ -30,9 +30,9 @@ public class Game extends EventDispatcher {
     _stage = stage;
 
     _elements = new Array();
-    var text:String = "ABCDEFGHIJKLMNOPQR";
-    for (var i:int = 0; i < 10; i++) {
-      var element:Element = new Element(text.charAt(i));
+    var text:String = "45694123669489132";
+    for (var i:int = 0; i < 8; i++) {
+      var element:Element = new Element(text.substr(i*2, 2));
       _elements.push(element);
     }
 
@@ -41,6 +41,8 @@ public class Game extends EventDispatcher {
 
     _tempBox = new TempBox();
     stage.addChild(_tempBox);
+
+    new TempBoxController(_stage, _tempBox);
 
     _eventDispatcher = new EventDispatcher();
 
@@ -57,6 +59,9 @@ public class Game extends EventDispatcher {
         break;
       case "game_boxToBelt":
         execute_game_boxToBelt(command.arg);
+        break;
+      case "tempBox_move":
+        execute_tempBox_move(command.arg);
         break;
       case "tempBox_pop":
         result = execute_tempBox_pop();
@@ -76,6 +81,8 @@ public class Game extends EventDispatcher {
 
   private function execute_game_beltToBox(arg:Object):void {
     // TODO オブジェクトを直接指定せずIDにする
+    if (_tempBox.element != null) return;
+
     var target:Element = searchLightingElement();
     if (target == null) return;
 
@@ -100,6 +107,10 @@ public class Game extends EventDispatcher {
 
   private function execute_elementBelt_insert(arg:Object):void {
     _elementBelt.insert(arg.index, arg.target);
+  }
+
+  private function execute_tempBox_move(arg:Object):void {
+    _tempBox.move(arg.moveX);
   }
 
   private function execute_tempBox_pop():Element {

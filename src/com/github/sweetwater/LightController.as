@@ -6,14 +6,14 @@ import flash.utils.getTimer;
 /**
  * @author sweetwater
  */
-public class MouseController {
+public class LightController {
   private var _deltaY:Number = 20;
   private var _inputTime:int = 200;
   private var _isDown:Boolean;
   private var _baseY:Number;
   private var _moves:Array;
 
-  public function MouseController(target:InteractiveObject) {
+  public function LightController(target:InteractiveObject) {
     target.addEventListener(MouseEvent.MOUSE_MOVE, onMouseMove);
     target.addEventListener(MouseEvent.MOUSE_OUT, onMouseOut);
     target.addEventListener(MouseEvent.MOUSE_UP, onMouseUp);

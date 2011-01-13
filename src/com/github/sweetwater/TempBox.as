@@ -30,6 +30,10 @@ public class TempBox extends Sprite {
   	this.addChild(_light);
   }
 
+  public function move(moveX:Number):void {
+    this.x += moveX;
+  }
+
   public function push(element:Element):void {
     if (_element != null) return;
 

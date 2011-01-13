@@ -6,7 +6,7 @@ import flash.display.Sprite;
  * @author sweetwater
  */
 public class Light extends Sprite {
-  private var _controller:MouseController;
+  private var _controller:LightController;
 
   public function Light() {
     var g:Graphics = this.graphics;
@@ -17,7 +17,7 @@ public class Light extends Sprite {
     g.drawRect(0, 0, 46, 90);
     g.endFill();
 
-    _controller = new MouseController(this);
+    _controller = new LightController(this);
   }
 }
 }
