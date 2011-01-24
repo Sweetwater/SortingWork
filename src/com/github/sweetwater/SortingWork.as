@@ -1,11 +1,12 @@
 package com.github.sweetwater {
-import flash.text.TextField;
 import flash.display.Sprite;
+import flash.events.MouseEvent;
+import flash.text.TextField;
 
 /**
  * @author sweetwater
  */
-[SWF(width="640", height="480", backgroundColor="#FF80FF", frameRate="31")]
+[SWF(width="1024", height="768", backgroundColor="#A0A0A0", frameRate="31")]
 public class SortingWork extends Sprite {
   private var _elements:Array;
   private var _tempBox:TempBox;
@@ -15,11 +16,17 @@ public class SortingWork extends Sprite {
 
   public function SortingWork() {
     Game.initialize(stage);
+    Game2.initialize(stage);
 
     _text = new TextField();
     _text.text = "test";
     _text.y = 160;
     addChild(_text);
+    stage.addEventListener(MouseEvent.MOUSE_MOVE,
+      function(event:MouseEvent):void {
+        _text.text = "X:" + event.stageX;
+      }
+      );
 
     //
   // var alphabet:String = "ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ";

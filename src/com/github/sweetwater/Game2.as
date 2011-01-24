@@ -1,4 +1,13 @@
 package com.github.sweetwater {
+
+import com.github.sweetwater.View.DefragView2;
+import com.github.sweetwater.View.ScrollView2;
+import com.github.sweetwater.View.TempWindow2;
+import com.github.sweetwater.View.WorkView;
+import com.github.sweetwater.event.GameEvent;
+import com.github.sweetwater.model.Element2;
+import com.github.sweetwater.model.ElementBelt2;
+
 import flash.display.Stage;
 import flash.events.Event;
 import flash.events.EventDispatcher;
@@ -9,35 +18,35 @@ import flashx.textLayout.formats.FormatValue;
 /**
  * @author sweetwater
  */
-public class Game extends EventDispatcher {
-  private static var _instance:Game;
+public class Game2 extends EventDispatcher {
 
-  public static function get instance():Game {
+  private static var _instance:Game2;
+  public static function get instance():Game2 {
     return _instance;
   }
-
   public static function initialize(stage:Stage):void {
-    _instance = new Game(stage);
+    _instance = new Game2(stage);
   }
 
   private var _stage:Stage;
-  private var _tempBox:TempBox;
   private var _elements:Array;
-  private var _elementBelt:ElementBelt;
+  private var _elementBelt:ElementBelt2;
+
+  private var _tempWindow:TempWindow2;
+  private var _tempBox:TempBox;
   private var _eventDispatcher:EventDispatcher;
 
-  public function Game(stage:Stage) {
+  private var _workView:WorkView;
+  private var _scrollView:ScrollView2;
+  private var _defragView:DefragView2;
+
+  public function Game2(stage:Stage) {
     _stage = stage;
+    _elements = Element2.CreateElements(100);
+    _elementBelt = new ElementBelt2(_elements);
 
-    _elements = new Array();
-    var text:String = "45694123669489132";
-    for (var i:int = 0; i < 8; i++) {
-      var element:Element = new Element(text.substr(i*2, 2));
-      _elements.push(element);
-    }
-
-    _elementBelt = new ElementBelt(this, stage);
-    _elementBelt.initialize(_elements);
+//    _elementBelt = new ElementBelt(this, stage);
+//    _elementBelt.initialize(_elements);
 
     _tempBox = new TempBox();
     stage.addChild(_tempBox);
@@ -49,6 +58,20 @@ public class Game extends EventDispatcher {
     stage.addEventListener(Event.ENTER_FRAME, function(event:Event):void {
       dispatchEvent(new Event("updateFrame"));
     });
+
+    _workView = new WorkView(this);
+    _stage.addChild(_workView);
+
+    _scrollView = new ScrollView2(this);
+    _scrollView.y = 200;
+    _stage.addChild(_scrollView);
+
+    _defragView = new DefragView2(this);
+    _defragView.y = 500;
+    _stage.addChild(_defragView);
+
+    dispatchEvent(new GameEvent("ElementBelt_update", {elementBelt:_elementBelt}));
+    dispatchEvent(new GameEvent("Elements_update", {elements:_elements}));
   }
 
   public function execute(command:Command):Object {
@@ -102,12 +125,12 @@ public class Game extends EventDispatcher {
     execute(new Command("elementBelt_insert", {"index":index, "target":element}));
   }
 
-  private function execute_elementBelt_remove(arg:Object):Element {
-    return _elementBelt.remove(arg.index);
+  private function execute_elementBelt_remove(arg:Object):Element2 {
+    return null;//_elementBelt.remove(arg.index);
   }
 
   private function execute_elementBelt_insert(arg:Object):void {
-    _elementBelt.insert(arg.index, arg.target);
+    //_elementBelt.insert(arg.index, arg.target);
   }
 
   private function execute_tempBox_move(arg:Object):void {
@@ -129,7 +152,7 @@ public class Game extends EventDispatcher {
       var bounds:Rectangle = element.getBounds(_stage);
       var interRect:Rectangle = lightBounds.intersection(bounds);
       if (interRect.width >= bounds.width / 2 ||
-          interRect.height != 0) {
+        interRect.height != 0) {
         return element;
       }
     }
