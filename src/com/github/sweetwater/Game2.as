@@ -29,6 +29,7 @@ public class Game2 extends EventDispatcher {
   }
 
   private var _stage:Stage;
+  private var _scrollPosition:Number;
   private var _elements:Array;
   private var _elementBelt:ElementBelt2;
 
@@ -42,7 +43,10 @@ public class Game2 extends EventDispatcher {
 
   public function Game2(stage:Stage) {
     _stage = stage;
-    _elements = Element2.CreateElements(100);
+
+    _scrollPosition = 0.5;
+
+    _elements = Element2.CreateElements(200);
     _elementBelt = new ElementBelt2(_elements);
 
 //    _elementBelt = new ElementBelt(this, stage);
@@ -70,13 +74,19 @@ public class Game2 extends EventDispatcher {
     _defragView.y = 500;
     _stage.addChild(_defragView);
 
-    dispatchEvent(new GameEvent("ElementBelt_update", {elementBelt:_elementBelt}));
-    dispatchEvent(new GameEvent("Elements_update", {elements:_elements}));
+    dispatchEvent(new GameEvent("ElementBelt_updateEvent", {elementBelt:_elementBelt}));
+    dispatchEvent(new GameEvent("Elements_initializeEvent", {elements:_elements}));
+    dispatchEvent(new GameEvent("ScrollPosition_initializeEvent", {position:_scrollPosition}));
+
+    dispatchEvent(new GameEvent("Game_redrawEvent"));
   }
 
   public function execute(command:Command):Object {
     var result:Object = null;
     switch (command.type) {
+      case "ScrollPosition_moveCommand":
+        execute_ScrollPosition_move(command.arg);
+        break;
       case "game_beltToBox":
         execute_game_beltToBox(command.arg);
         break;
@@ -100,6 +110,16 @@ public class Game2 extends EventDispatcher {
         break;
     }
     return result;
+  }
+
+  private function execute_ScrollPosition_move(arg:Object):void {
+    var moveX:Number = arg.moveX;
+
+    _scrollPosition += moveX;
+    if (_scrollPosition < 0.0) _scrollPosition = 0.0;
+    if (_scrollPosition > 1.0) _scrollPosition = 1.0;
+
+    dispatchEvent(new GameEvent("ScrollPosition_updateEvent", {position:_scrollPosition}));
   }
 
   private function execute_game_beltToBox(arg:Object):void {

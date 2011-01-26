@@ -36,8 +36,8 @@ public class WorkView extends Sprite
   public function WorkView(game:Game2)
   {
     _game = game;
-    _game.addEventListener("ElementBelt_update", ElementBelt_update);
-    _game.addEventListener("SelectIndex_change", SelectIndex_change);
+    _game.addEventListener("ElementBelt_updateEvent", ElementBelt_update);
+    _game.addEventListener("SelectIndex_changeEvent", SelectIndex_change);
 
     // ビューの幅から四角形の個数を計算する
     // 両端にマージンを設定する
