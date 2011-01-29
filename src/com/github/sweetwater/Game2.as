@@ -7,6 +7,7 @@ import com.github.sweetwater.View.WorkView;
 import com.github.sweetwater.event.GameEvent;
 import com.github.sweetwater.model.Element2;
 import com.github.sweetwater.model.ElementBelt2;
+import com.github.sweetwater.model.SelectPosition;
 
 import flash.display.Stage;
 import flash.events.Event;
@@ -29,6 +30,7 @@ public class Game2 extends EventDispatcher {
   }
 
   private var _stage:Stage;
+  private var _selectPosition:SelectPosition;
   private var _scrollPosition:Number;
   private var _elements:Array;
   private var _elementBelt:ElementBelt2;
@@ -49,6 +51,7 @@ public class Game2 extends EventDispatcher {
     _elements = Element2.CreateElements(200);
     _elementBelt = new ElementBelt2(_elements);
 
+    _selectPosition = SelectPosition.None;
 //    _elementBelt = new ElementBelt(this, stage);
 //    _elementBelt.initialize(_elements);
 
@@ -77,6 +80,7 @@ public class Game2 extends EventDispatcher {
     dispatchEvent(new GameEvent("Elements_initializeEvent", {elements:_elements}));
     dispatchEvent(new GameEvent("ElementBelt_initializeEvent", {elementBelt:_elementBelt}));
     dispatchEvent(new GameEvent("ScrollPosition_initializeEvent", {position:_scrollPosition}));
+    dispatchEvent(new GameEvent("SelectPosition_initializeEvent", {position:_selectPosition}));
 
     dispatchEvent(new GameEvent("Game_redrawEvent"));
   }
@@ -87,6 +91,12 @@ public class Game2 extends EventDispatcher {
       case "ScrollPosition_moveCommand":
         execute_ScrollPosition_move(command.arg);
         break;
+      case "SelectPosition_selectCommand":
+        execute_SelectPosition_select(command.arg);
+        break;
+
+
+
       case "game_beltToBox":
         execute_game_beltToBox(command.arg);
         break;
@@ -120,6 +130,12 @@ public class Game2 extends EventDispatcher {
     if (_scrollPosition > 1.0) _scrollPosition = 1.0;
 
     dispatchEvent(new GameEvent("ScrollPosition_updateEvent", {position:_scrollPosition}));
+  }
+
+  private function execute_SelectPosition_select(arg:Object):void {
+    var selectPosition:SelectPosition = arg.position;
+    _selectPosition = selectPosition;
+    dispatchEvent(new GameEvent("SelectPosition_selectEvent", {position:_selectPosition}));
   }
 
   private function execute_game_beltToBox(arg:Object):void {
