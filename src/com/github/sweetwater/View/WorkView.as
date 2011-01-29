@@ -2,6 +2,7 @@ package com.github.sweetwater.View
 {
 
 import com.github.sweetwater.Game2;
+import com.github.sweetwater.controller.WorkViewController;
 import com.github.sweetwater.event.GameEvent;
 import com.github.sweetwater.model.ElementBelt2;
 import com.github.sweetwater.utility.TextDrawer;
@@ -23,50 +24,90 @@ public class WorkView extends Sprite
 {
   private var viewWidth:Number = 800;
   private var viewHeight:Number = 300;
+  private var boxY:Number = 200;
   private var boxWidth:Number = 30;
   private var boxHeight:Number = 30;
   private var spaceWidth:Number = 20;
-  private var spaceHeight:Number = 30;
 
   private var bitmapBG:uint = 0x00FFFF;
 
   private var _game:Game2;
+  private var _viewport:Number;
+  private var _viewportMask:Shape;
+  private var _boxTable:Object;
   private var _boxes:Array;
+  private var _boxesWidth:Number;
+  private var _workViewController:WorkViewController;
 
   public function WorkView(game:Game2)
   {
     _game = game;
-    _game.addEventListener("ElementBelt_updateEvent", ElementBelt_update);
-    _game.addEventListener("SelectIndex_changeEvent", SelectIndex_change);
 
-    // ビューの幅から四角形の個数を計算する
-    // 両端にマージンを設定する
-    var mergin:Number = -20;
-    var boxNum:int = (viewWidth - (mergin * 2)) / (boxWidth + spaceWidth);
+    _viewportMask = new Shape();
+    this.mask = _viewportMask;
 
-    _boxes = new Array();
-    for (var i:int = 0; i < boxNum; i++) {
-      _boxes.push(new Object());
-      _boxes[i].value = "";
-      _boxes[i].draw = new Rectangle(0, 0, boxWidth, boxHeight);
-      _boxes[i].collision = new Rectangle(0, 0, boxWidth, boxHeight);
+    _workViewController = new WorkViewController(this);
+
+    _game.addEventListener("Elements_initializeEvent", onElements_initialize);
+    _game.addEventListener("ElementBelt_initializeEvent", onElementBelt_initialize);
+
+    _game.addEventListener("ScrollPosition_initializeEvent", onScrollPosition_initialize);
+    _game.addEventListener("ScrollPosition_updateEvent", onScrollPosition_update);
+
+    _game.addEventListener("Game_redrawEvent", draw);
+  }
+
+  private function setBoxTable(elements:Array):void {
+    _boxTable = new Object();
+    for (var i:int = 0; i < elements.length; i++) {
+      var object:Object = new Object();
+      object.value = elements[i].value;
+      object.draw = new Rectangle(0, 0, boxWidth, boxHeight);
+      object.collision = new Rectangle(0, 0, boxWidth, boxHeight);
+
+      var key:Object = elements[i].value;
+      _boxTable[key] = object;
     }
-    fixeBoxPosition();
+  }
+
+  private function setBoxes(elements:Array):void {
+    _boxes = new Array();
+    for (var i:int = 0; i < elements.length; i++) {
+      var key:Object = elements[i].value;
+      var object:Object = _boxTable[key];
+      var x:Number = i * (boxWidth + spaceWidth);
+      var y:Number = boxY;
+      object.draw.x = x;
+      object.draw.y = y;
+      object.collision.x = x;
+      object.collision.y = y;
+      _boxes.push(object);
+    }
+    _boxesWidth = (boxWidth + spaceWidth) * elements.length;
+  }
+
+  private function setViewPort(scroll:Number):void {
+    _viewport = scroll * _boxesWidth;
+  }
+
+  private function onElements_initialize(event:GameEvent):void {
+    setBoxTable(event.arg.elements);
+  }
+
+  private function onElementBelt_initialize(event:GameEvent):void {
+    setBoxes(event.arg.elementBelt.elements);
+  }
+
+  private function onScrollPosition_initialize(event:GameEvent):void {
+    setViewPort(event.arg.position);
+  }
+
+  private function onScrollPosition_update(event:GameEvent):void {
+    setViewPort(event.arg.position);
     draw();
   }
 
-  public function fixeBoxPosition():void {
-    var boxesWidth:Number = boxWidth * _boxes.length;
-    var spacesWidth:Number = spaceWidth * (_boxes.length - 1);
-    var mergin:Number = viewWidth - (boxesWidth + spacesWidth);
-    var merginLeft:Number = mergin/2;
-    for (var i:int = 0; i < _boxes.length; i++) {
-      _boxes[i].draw.x = merginLeft + i * (boxWidth + spaceWidth);
-      trace("x:" + _boxes[i].draw.x);
-    }
-  }
-
-  public function ElementBelt_update(event:GameEvent):void {
+  private function ElementBelt_update(event:GameEvent):void {
     // TODO ベルトの描画を更新する
     var elementBelt:ElementBelt2 = event.arg.elementBelt;
     for (var i:int = 0; i < _boxes.length; i++) {
@@ -75,12 +116,20 @@ public class WorkView extends Sprite
     draw();
   }
 
-  public function SelectIndex_change(event:Event):void {
+  private function SelectIndex_change(event:Event):void {
     // TODO 選択中のやつの描画を更新する
     draw();
   }
 
-  public function draw():void {
+  private function draw(event:GameEvent = null):void {
+
+    // マスクの描画
+    var maskG:Graphics = _viewportMask.graphics;
+    maskG.lineStyle(2, viewFrameColor, 1.0);
+    maskG.beginFill(0xFFFFFF);
+    maskG.drawRect(0, 0, viewWidth, viewHeight);
+    maskG.endFill();
+
     var g:Graphics = graphics;
     g.clear();
 
@@ -93,16 +142,16 @@ public class WorkView extends Sprite
     g.endFill();
 
     // エレメントの描画
+    var centerX:Number = viewWidth / 2;
+    var startX:Number = centerX - _viewport;
     for each (var box:Object in _boxes) {
       var drawBox:Rectangle = box.draw;
       g.lineStyle(2, 0x000000, 1.0);
       g.beginFill(0x808080, 1.0);
-      g.drawRect(drawBox.x, drawBox.y, drawBox.width, drawBox.height);
+      g.drawRect(startX + drawBox.x, drawBox.y, drawBox.width, drawBox.height);
       g.endFill();
 
-      TextDrawer.draw(g, box.value, drawBox.x, drawBox.y, 0xFFFFFF);
-
-//      drawString(box, 0xFFFFFF);
+      TextDrawer.draw(g, box.value, startX + drawBox.x, drawBox.y, 0xFFFFFF);
     }
   }
 

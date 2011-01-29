@@ -67,15 +67,15 @@ public class Game2 extends EventDispatcher {
     _stage.addChild(_workView);
 
     _scrollView = new ScrollView2(this);
-    _scrollView.y = 200;
+    _scrollView.y = 350;
     _stage.addChild(_scrollView);
 
     _defragView = new DefragView2(this);
     _defragView.y = 500;
     _stage.addChild(_defragView);
 
-    dispatchEvent(new GameEvent("ElementBelt_updateEvent", {elementBelt:_elementBelt}));
     dispatchEvent(new GameEvent("Elements_initializeEvent", {elements:_elements}));
+    dispatchEvent(new GameEvent("ElementBelt_initializeEvent", {elementBelt:_elementBelt}));
     dispatchEvent(new GameEvent("ScrollPosition_initializeEvent", {position:_scrollPosition}));
 
     dispatchEvent(new GameEvent("Game_redrawEvent"));

@@ -17,7 +17,7 @@ public class Element2
 
     var shuffled:Array = new Array();
     for (var i2:int  = 0; i2 < num; i2++) {
-      var index:int = Math.random() * elements.length;
+      var index:int = i2;//Math.random() * elements.length;
       var element2:Element2 = elements.splice(index, 1)[0];
       shuffled.push(element2);
     }

@@ -25,8 +25,7 @@ public class SortingWork extends Sprite {
     stage.addEventListener(MouseEvent.MOUSE_MOVE,
       function(event:MouseEvent):void {
         _text.text = "X:" + event.stageX;
-      }
-      );
+      });
 
     //
   // var alphabet:String = "ＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ";

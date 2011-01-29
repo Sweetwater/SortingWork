@@ -3,6 +3,7 @@ package com.github.sweetwater.View
 import com.github.sweetwater.Game;
 import com.github.sweetwater.Game2;
 import com.github.sweetwater.controller.ScrollViewController;
+import com.github.sweetwater.controller.WorkViewController;
 import com.github.sweetwater.event.GameEvent;
 
 import flash.display.Graphics;
@@ -37,11 +38,11 @@ public class ScrollView2 extends Sprite
 
     _controller = new ScrollViewController(this);
 
-    _game.addEventListener("Elements_initializeEvent", Elements_initialize);
-    _game.addEventListener("Elements_updateEvent", Elements_update);
+    _game.addEventListener("Elements_initializeEvent", onElements_initialize);
+    _game.addEventListener("Elements_updateEvent", onElements_update);
 
-    _game.addEventListener("ScrollPosition_initializeEvent", ScrollPosition_initialize);
-    _game.addEventListener("ScrollPosition_updateEvent", ScrollPosition_update);
+    _game.addEventListener("ScrollPosition_initializeEvent", onScrollPosition_initialize);
+    _game.addEventListener("ScrollPosition_updateEvent", onScrollPosition_update);
 
     _game.addEventListener("Game_redrawEvent", draw);
   }
@@ -76,18 +77,18 @@ public class ScrollView2 extends Sprite
     _cursor = _barWidth * scrollPosition;
   }
 
-  private function Elements_initialize(event:GameEvent):void {
+  private function onElements_initialize(event:GameEvent):void {
     setElements(event.arg.elements);
   }
-  private function Elements_update(event:GameEvent):void {
+  private function onElements_update(event:GameEvent):void {
     setElements(event.arg.elements);
     draw();
   }
 
-  private function ScrollPosition_initialize(event:GameEvent):void {
+  private function onScrollPosition_initialize(event:GameEvent):void {
     setScrollPosition(event.arg.position);
   }
-  private function ScrollPosition_update(event:GameEvent):void {
+  private function onScrollPosition_update(event:GameEvent):void {
     setScrollPosition(event.arg.position);
     draw();
   }
