@@ -30,21 +30,30 @@ public class WorkView extends Sprite
   private var boxWidth:Number = 30;
   private var boxHeight:Number = 30;
   private var spaceWidth:Number = 20;
-  private var selectFrameThick:Number = 3;
+  private var selectFrameThick:Number = 4;
 
   private var bitmapBG:uint = 0x00FFFF;
 
   private var _game:Game2;
+
   private var _viewport:Number;
   private var _viewportMask:Shape;
+
   private var _selectPosition:SelectPosition;
-  private var _boxTable:Object;
-  private var _boxes:Array;
+
+  private var _elementBoxTable:Object;
+  private var _elementBoxes:Array;
+  private var _spaceBoxes:Array;
+
   private var _boxesWidth:Number;
   private var _workViewController:WorkViewController;
 
-  public function get boxes() : Array {
-    return _boxes;
+  public function get elementBoxes() : Array {
+    return _elementBoxes;
+  }
+
+  public function get spaceBoxes() : Array {
+    return _spaceBoxes;
   }
 
   public function WorkView(game:Game2)
@@ -69,34 +78,53 @@ public class WorkView extends Sprite
     _game.addEventListener("Game_redrawEvent", draw);
   }
 
-  private function setBoxTable(elements:Array):void {
-    _boxTable = new Object();
+  private function createElementBoxTable(elements:Array):void {
+    _elementBoxTable = new Object();
     for (var i:int = 0; i < elements.length; i++) {
       var object:Object = new Object();
       object.value = elements[i].value;
+      object.number = i;
       object.draw = new Rectangle(0, 0, boxWidth, boxHeight);
       object.collision = new Rectangle(0, 0, boxWidth, boxHeight);
 
       var key:Object = elements[i].value;
-      _boxTable[key] = object;
+      _elementBoxTable[key] = object;
     }
   }
 
-  private function setBoxes(elements:Array):void {
-    _boxes = new Array();
+  private function createSpaceBoxes(elements:Array):void {
+    _spaceBoxes = new Array();
+    for (var i:int = 0; i < elements.length + 1; i++) {
+      var object:Object = new Object();
+      var width:Number = spaceWidth;
+      if (i == 0 || i == elements.length) {
+        width = boxWidth;
+      }
+      object.collision = new Rectangle(0, 0, width, boxHeight);
+      object.left = i-1;
+      object.right = (i < elements.length ? i : -1);
+      _spaceBoxes.push(object);
+    }
+  }
+
+  private function setElementBoxes(elements:Array):void {
+    _elementBoxes = new Array();
     for (var i:int = 0; i < elements.length; i++) {
       var key:Object = elements[i].value;
-      var object:Object = _boxTable[key];
-      _boxes.push(object);
+      var object:Object = _elementBoxTable[key];
+      object.number = i;
+      _elementBoxes.push(object);
     }
-    fixDrawPosition();
-    fixCollisionPosition();
+    fixElementBoxDraw();
+    fixElementBoxCollision();
+    fixSpaceBoxCollision();
   }
 
   private function setViewPort(scroll:Number):void {
     _viewport = scroll * _boxesWidth;
-    fixDrawPosition();
-    fixCollisionPosition();
+    fixElementBoxDraw();
+    fixElementBoxCollision();
+    fixSpaceBoxCollision();
   }
 
   private function setSelectPosition(position:SelectPosition):void {
@@ -113,35 +141,48 @@ public class WorkView extends Sprite
     return _boxesWidth;
   }
 
-  private function fixDrawPosition() : void {
+  private function fixElementBoxDraw() : void {
     var baseX:Number = boxesBaseX;
-    for (var i:int = 0; i < _boxes.length; i++) {
+    for (var i:int = 0; i < _elementBoxes.length; i++) {
       var x:Number = baseX + i * (boxWidth + spaceWidth);
       var y:Number = boxY;
-      var drawBox:Rectangle = _boxes[i].draw;
+      var drawBox:Rectangle = _elementBoxes[i].draw;
       drawBox.x = x;
       drawBox.y = y;
     }
-    _boxesWidth = (boxWidth + spaceWidth) * _boxes.length;
+    _boxesWidth = (boxWidth + spaceWidth) * _elementBoxes.length;
   }
 
-  private function fixCollisionPosition() : void {
+  private function fixElementBoxCollision() : void {
     var baseX:Number = boxesBaseX;
-    for (var i:int = 0; i < _boxes.length; i++) {
+    for (var i:int = 0; i < _elementBoxes.length; i++) {
       var x:Number = baseX + i * (boxWidth + spaceWidth);
       var y:Number = boxY;
-      var collisionBox:Rectangle = _boxes[i].collision;
+      var collisionBox:Rectangle = _elementBoxes[i].collision;
+      collisionBox.x = x;
+      collisionBox.y = y;
+    }
+  }
+
+  private function fixSpaceBoxCollision() : void {
+    var baseX:Number = boxesBaseX;
+    for (var i:int = 0; i < _spaceBoxes.length; i++) {
+      var x:Number = baseX + i * (boxWidth + spaceWidth);
+      var y:Number = boxY;
+      x -= (i == 0 ? boxWidth : spaceWidth);
+      var collisionBox:Rectangle = _spaceBoxes[i].collision;
       collisionBox.x = x;
       collisionBox.y = y;
     }
   }
 
   private function onElements_initialize(event:GameEvent):void {
-    setBoxTable(event.arg.elements);
+    createElementBoxTable(event.arg.elements);
+    createSpaceBoxes(event.arg.elements);
   }
 
   private function onElementBelt_initialize(event:GameEvent):void {
-    setBoxes(event.arg.elementBelt.elements);
+    setElementBoxes(event.arg.elementBelt.elements);
   }
 
   private function onScrollPosition_initialize(event:GameEvent):void {
@@ -159,20 +200,6 @@ public class WorkView extends Sprite
 
   private function onSelectPosition_select(event:GameEvent):void {
     setSelectPosition(event.arg.position);
-    draw();
-  }
-
-  private function ElementBelt_update(event:GameEvent):void {
-    // TODO ベルトの描画を更新する
-    var elementBelt:ElementBelt2 = event.arg.elementBelt;
-    for (var i:int = 0; i < _boxes.length; i++) {
-      _boxes[i].value = elementBelt.elements[i].value;
-    }
-    draw();
-  }
-
-  private function SelectIndex_change(event:Event):void {
-    // TODO 選択中のやつの描画を更新する
     draw();
   }
 
@@ -197,7 +224,7 @@ public class WorkView extends Sprite
     g.endFill();
 
     // エレメントの描画
-    for each (var box:Object in _boxes) {
+    for each (var box:Object in _elementBoxes) {
       var drawBox:Rectangle = box.draw;
       g.lineStyle(2, 0x000000, 1.0);
       g.beginFill(0x808080, 1.0);
@@ -213,7 +240,7 @@ public class WorkView extends Sprite
       drawElementFrame(g, _selectPosition.elementNumber);
       break;
     case SelectPosition.TYPE_SPACE:
-      drawSpaceFrame();
+      drawSpaceFrame(g, _selectPosition.leftNumber, _selectPosition.rightNumber);
       break;
     case SelectPosition.TYPE_NONE:
       break;
@@ -221,7 +248,7 @@ public class WorkView extends Sprite
   }
 
   private function drawElementFrame(g:Graphics, elementNumber:int) : void {
-    var box:Object = _boxes[elementNumber];
+    var box:Object = _elementBoxes[elementNumber];
     var boxRect:Rectangle = box.draw;
     var frameRect:Rectangle = new Rectangle();
     frameRect.x = boxRect.x - selectFrameThick / 2;
@@ -233,7 +260,21 @@ public class WorkView extends Sprite
     g.drawRect(frameRect.x, frameRect.y, frameRect.width, frameRect.height);
   }
 
-  private function drawSpaceFrame() : void {
+  private function drawSpaceFrame(g:Graphics, leftNumber:int, rightNumber:int) : void {
+    if (leftNumber < 0 && rightNumber < 0) return;
+
+    g.lineStyle(selectFrameThick, 0xFF0000);
+
+    if (leftNumber > -1) {
+      var leftX:Number = _elementBoxes[leftNumber].draw.right;
+      g.moveTo(leftX, boxY-6);
+      g.lineTo(leftX, boxY+boxHeight+6);
+    }
+    if (rightNumber > -1) {
+      var rightX:Number = _elementBoxes[rightNumber].draw.left;
+      g.moveTo(rightX, boxY-6);
+      g.lineTo(rightX, boxY+boxHeight+6);
+    }
   }
 
 }

@@ -40,8 +40,18 @@ public class WorkViewController
     _isCursorDrag = false;
   }
 
-  private function checkHitBox(x:Number, y:Number) : Object {
-    var boxes:Array = _workView.boxes;
+  private function checkHitElementBox(x:Number, y:Number) : Object {
+    var boxes:Array = _workView.elementBoxes;
+    for each (var box:Object in boxes) {
+      var collision:Rectangle = box.collision;
+      var isHit:Boolean = collision.contains(x, y);
+      if (isHit) return box;
+    }
+    return null;
+  }
+
+  private function checkHitSpaceBox(x:Number, y:Number) : Object {
+    var boxes:Array = _workView.spaceBoxes;
     for each (var box:Object in boxes) {
       var collision:Rectangle = box.collision;
       var isHit:Boolean = collision.contains(x, y);
@@ -51,12 +61,20 @@ public class WorkViewController
   }
 
   private function getHitPostiion(x:Number, y:Number) : SelectPosition {
-    var box:Object = checkHitBox(x, y);
-    if (box == null) return SelectPosition.None;
+    var elementBox:Object = checkHitElementBox(x, y);
+    if (elementBox != null) {
+      var number:int = elementBox.number;
+      return SelectPosition.Element(number);
+    }
 
-    var boxes:Array = _workView.boxes;
-    var number:int = boxes.indexOf(box);
-    return SelectPosition.Element(number);
+    var spaceBox:Object = checkHitSpaceBox(x, y);
+    if (spaceBox != null) {
+      var left:int = spaceBox.left;
+      var right:int = spaceBox.right;
+      return SelectPosition.Space(left, right);
+    }
+
+    return SelectPosition.None;
   }
 
   private function onMouseDown(event:MouseEvent):void {
