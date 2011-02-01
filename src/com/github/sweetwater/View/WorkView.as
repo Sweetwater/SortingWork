@@ -68,6 +68,7 @@ public class WorkView extends Sprite
 
     _game.addEventListener("Elements_initializeEvent", onElements_initialize);
     _game.addEventListener("ElementBelt_initializeEvent", onElementBelt_initialize);
+    _game.addEventListener("ElementBelt_swapEvent", onElementBelt_swap);
 
     _game.addEventListener("ScrollPosition_initializeEvent", onScrollPosition_initialize);
     _game.addEventListener("ScrollPosition_updateEvent", onScrollPosition_update);
@@ -183,6 +184,11 @@ public class WorkView extends Sprite
 
   private function onElementBelt_initialize(event:GameEvent):void {
     setElementBoxes(event.arg.elementBelt.elements);
+  }
+
+  private function onElementBelt_swap(event:GameEvent):void {
+    setElementBoxes(event.arg.elementBelt.elements);
+    draw();
   }
 
   private function onScrollPosition_initialize(event:GameEvent):void {

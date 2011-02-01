@@ -71,11 +71,11 @@ public class SelectPosition
   }
 
   public function hasLeftNumber(): Boolean {
-    return _leftNumber > 0;
+    return _leftNumber > -1;
   }
 
   public function hasRightNumber() : Boolean {
-    return _rightNumber > 0;
+    return _rightNumber > -1;
   }
 
   public function equals(position:SelectPosition) : Boolean {

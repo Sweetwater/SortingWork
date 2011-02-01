@@ -5,9 +5,9 @@ import com.github.sweetwater.model.Element2;
 
 public class Element2
 {
-  public static function CreateElements(num:int):Array {
+  public static function CreateElements(num:int, range:int):Array {
     var elements:Array = new Array();
-    for (var i:int  = 0; i < 1000; i++) {
+    for (var i:int  = 0; i < range; i++) {
       var value:String = i.toString();
       if (i < 10) value = "  " + value;
       if (i < 100) value = " " + value;
@@ -17,7 +17,9 @@ public class Element2
 
     var shuffled:Array = new Array();
     for (var i2:int  = 0; i2 < num; i2++) {
-      var index:int = i2;//Math.random() * elements.length;
+//      var index:int = 0;
+      var index:int = Math.random() * elements.length;
+      var index:int = Math.random() * elements.length;
       var element2:Element2 = elements.splice(index, 1)[0];
       shuffled.push(element2);
     }

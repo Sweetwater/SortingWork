@@ -48,7 +48,8 @@ public class Game2 extends EventDispatcher {
 
     _scrollPosition = 0.5;
 
-    _elements = Element2.CreateElements(200);
+//    _elements = Element2.CreateElements(10, 1000);
+    _elements = Element2.CreateElements(10, 10);
     _elementBelt = new ElementBelt2(_elements);
 
     _selectPosition = SelectPosition.None;
@@ -94,6 +95,9 @@ public class Game2 extends EventDispatcher {
       case "SelectPosition_selectCommand":
         execute_SelectPosition_select(command.arg);
         break;
+      case "ElementBelt_swapCommand":
+        execute_ElementBelt_swap(command.arg);
+        break;
 
 
 
@@ -134,9 +138,83 @@ public class Game2 extends EventDispatcher {
 
   private function execute_SelectPosition_select(arg:Object):void {
     var selectPosition:SelectPosition = arg.position;
-    _selectPosition = selectPosition;
-    dispatchEvent(new GameEvent("SelectPosition_selectEvent", {position:_selectPosition}));
+
+    // TODO : スワップかどうかの判定をコントローラに出す
+
+    if (_selectPosition.isNone()) {
+      // 選択しているものがないなら選択する
+      _selectPosition = selectPosition;
+      dispatchEvent(new GameEvent("SelectPosition_selectEvent", {position:_selectPosition}));
+    }
+    else if (_selectPosition.equals(selectPosition)) {
+      // 同じものを選択したら選択を解除する
+      _selectPosition = SelectPosition.None;
+      dispatchEvent(new GameEvent("SelectPosition_selectEvent", {position:_selectPosition}));
+    }
+    else {
+      // 違うものを選択したら場所を入れ替える
+      execute(new Command("ElementBelt_swapCommand", {select1:_selectPosition, select2:selectPosition}));
+
+      _selectPosition = SelectPosition.None;
+      dispatchEvent(new GameEvent("SelectPosition_selectEvent", {position:_selectPosition}));
+    }
   }
+
+  private function execute_ElementBelt_swap(arg:Object):void {
+    var select1:SelectPosition = arg.select1;
+    var select2:SelectPosition = arg.select2;
+
+    if (select1.isNone()) return;
+    if (select2.isNone()) return;
+
+    if (select1.isElement() && select2.isElement()) {
+      // エレメント同士ならエレメントの入れ替え
+      swapElement(select1, select2);
+    }
+    else if (select1.isSpace() && select2.isElement()) {
+      // 片方がスペースならスペースに挿入
+      insertElement(select1, select2);
+    }
+    else if (select1.isElement() && select2.isSpace()) {
+      // 片方がスペースならスペースに挿入
+      insertElement(select2, select1);
+    }
+  }
+
+  private function swapElement(select1:SelectPosition, select2:SelectPosition) : void {
+    var number1:int = select1.elementNumber;
+    var number2:int = select2.elementNumber;
+
+    var element1:Element2 = _elementBelt.elements[number1];
+    var element2:Element2 = _elementBelt.elements[number2];
+    _elementBelt.elements[number1] = element2;
+    _elementBelt.elements[number2] = element1;
+
+    dispatchEvent(new GameEvent("ElementBelt_swapEvent", {elementBelt:_elementBelt}));
+  }
+
+  private function insertElement(selectSpace:SelectPosition, selectElement:SelectPosition) :void {
+    var elementNumber:int = selectElement.elementNumber;
+    var element:Element2 = _elementBelt.elements[elementNumber];
+    if (selectSpace.hasRightNumber()) {
+      var insertNumber:int = selectSpace.rightNumber;
+      if (elementNumber < insertNumber) {
+        _elementBelt.elements.splice(insertNumber, 0, element);
+        _elementBelt.elements.splice(elementNumber, 1);
+      }
+      else {
+        _elementBelt.elements.splice(elementNumber, 1);
+        _elementBelt.elements.splice(insertNumber, 0, element);
+      }
+    }
+    else {
+      _elementBelt.elements.splice(elementNumber, 1);
+      _elementBelt.elements.push(element);
+    }
+
+    dispatchEvent(new GameEvent("ElementBelt_swapEvent", {elementBelt:_elementBelt}));
+  }
+
 
   private function execute_game_beltToBox(arg:Object):void {
     // TODO オブジェクトを直接指定せずIDにする
