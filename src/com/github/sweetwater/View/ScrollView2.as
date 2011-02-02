@@ -1,14 +1,11 @@
 package com.github.sweetwater.View
 {
-import com.github.sweetwater.Game;
 import com.github.sweetwater.Game2;
 import com.github.sweetwater.controller.ScrollViewController;
-import com.github.sweetwater.controller.WorkViewController;
 import com.github.sweetwater.event.GameEvent;
 
 import flash.display.Graphics;
 import flash.display.Sprite;
-import flash.events.Event;
 import flash.geom.Point;
 import flash.geom.Rectangle;
 

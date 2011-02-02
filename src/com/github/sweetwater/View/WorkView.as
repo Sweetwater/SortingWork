@@ -1,7 +1,6 @@
 package com.github.sweetwater.View
 {
 
-import com.github.sweetwater.Element;
 import com.github.sweetwater.Game2;
 import com.github.sweetwater.controller.WorkViewController;
 import com.github.sweetwater.event.GameEvent;

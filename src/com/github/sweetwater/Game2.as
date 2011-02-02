@@ -25,6 +25,7 @@ public class Game2 extends EventDispatcher {
   public static function get instance():Game2 {
     return _instance;
   }
+
   public static function initialize(stage:Stage):void {
     _instance = new Game2(stage);
   }
@@ -36,7 +37,6 @@ public class Game2 extends EventDispatcher {
   private var _elementBelt:ElementBelt2;
 
   private var _tempWindow:TempWindow2;
-  private var _tempBox:TempBox;
   private var _eventDispatcher:EventDispatcher;
 
   private var _workView:WorkView;
@@ -55,11 +55,6 @@ public class Game2 extends EventDispatcher {
     _selectPosition = SelectPosition.None;
 //    _elementBelt = new ElementBelt(this, stage);
 //    _elementBelt.initialize(_elements);
-
-    _tempBox = new TempBox();
-    stage.addChild(_tempBox);
-
-    new TempBoxController(_stage, _tempBox);
 
     _eventDispatcher = new EventDispatcher();
 
@@ -97,30 +92,6 @@ public class Game2 extends EventDispatcher {
         break;
       case "ElementBelt_swapCommand":
         execute_ElementBelt_swap(command.arg);
-        break;
-
-
-
-      case "game_beltToBox":
-        execute_game_beltToBox(command.arg);
-        break;
-      case "game_boxToBelt":
-        execute_game_boxToBelt(command.arg);
-        break;
-      case "tempBox_move":
-        execute_tempBox_move(command.arg);
-        break;
-      case "tempBox_pop":
-        result = execute_tempBox_pop();
-        break;
-      case "tempBox_push":
-        execute_tempBox_push(command.arg);
-        break;
-      case "elementBelt_insert":
-        execute_elementBelt_insert(command.arg);
-        break;
-      case "elementBelt_remove":
-        result = execute_elementBelt_remove(command.arg);
         break;
     }
     return result;
@@ -213,79 +184,6 @@ public class Game2 extends EventDispatcher {
     }
 
     dispatchEvent(new GameEvent("ElementBelt_swapEvent", {elementBelt:_elementBelt}));
-  }
-
-
-  private function execute_game_beltToBox(arg:Object):void {
-    // TODO オブジェクトを直接指定せずIDにする
-    // TODO 操作を変更する
-    if (_tempBox.element != null) return;
-
-    var target:Element = searchLightingElement();
-    if (target == null) return;
-
-    var index:int = _elementBelt.elements.indexOf(target);
-    execute(new Command("elementBelt_remove", {"index":index}));
-    execute(new Command("tempBox_push", {"target":target}));
-  }
-
-  private function execute_game_boxToBelt(arg:Object):void {
-    var index:int = searchInsertIndex();
-
-    if (index < 0) return;
-    var element:Object = execute(new Command("tempBox_pop"));
-
-    if (element == null) return;
-    execute(new Command("elementBelt_insert", {"index":index, "target":element}));
-  }
-
-  private function execute_elementBelt_remove(arg:Object):Element2 {
-    return null;//_elementBelt.remove(arg.index);
-  }
-
-  private function execute_elementBelt_insert(arg:Object):void {
-    //_elementBelt.insert(arg.index, arg.target);
-  }
-
-  private function execute_tempBox_move(arg:Object):void {
-    _tempBox.move(arg.moveX);
-  }
-
-  private function execute_tempBox_pop():Element {
-    return _tempBox.pop();
-  }
-
-  private function execute_tempBox_push(arg:Object):void {
-    _tempBox.push(arg.target);
-  }
-
-  public function searchLightingElement():Element {
-    // Lightに半分以上重なっているElementを探す
-    var lightBounds:Rectangle = _tempBox.light.getBounds(_stage);
-    for each (var element:Element in _elementBelt.elements) {
-      var bounds:Rectangle = element.getBounds(_stage);
-      var interRect:Rectangle = lightBounds.intersection(bounds);
-      if (interRect.width >= bounds.width / 2 ||
-        interRect.height != 0) {
-        return element;
-      }
-    }
-    return null;
-  }
-
-  private function searchInsertIndex():int {
-    // 左端座標を比較して挿入位置を探索する
-    if (_tempBox.element == null) return -1;
-
-    var popBounding:Rectangle = _tempBox.element.getBounds(_stage);
-    for (var i:int = 0; i < _elementBelt.elements.length; i++) {
-      var element:Element = _elementBelt.elements[i];
-      var bounds:Rectangle = element.getBounds(_stage);
-      if (bounds.x > popBounding.x) {
-        return i;
-      }
-    }
-    return _elementBelt.elements.length;
   }
 }
 }
